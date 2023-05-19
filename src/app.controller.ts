@@ -12,7 +12,7 @@ export class AppController {
   @Get()
   getAllReports(@Param('type') type:string) {
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
-    return data.reports.filter(report => report.type === reportType)
+    return this.appService.getAllReports(reportType)
   }
 
   @Get('/:id')
@@ -23,8 +23,7 @@ export class AppController {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
-    return data.reports.filter((report) => report.type === reportType)
-                       .find(report => report.id === id)
+    return this.appService.getReportById(reportType,id)
   }
 
   @Post()
@@ -32,18 +31,10 @@ export class AppController {
     amount: number,
     source: string
   }, @Param('type') type:string) {
-    const newReport = {
-      id: uuid(),
-      source,
-      amount,
-      created_at: new Date(),
-      updated_at: new Date(),
-      type: (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
-    }
 
-    data.reports.push(newReport)
+    const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
-    return {newReport};
+    return this.appService.createReport(reportType, {amount, source})
   }
 
   @Put('/:id')
@@ -55,35 +46,12 @@ export class AppController {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
-    const reportToUpdate = data.reports.filter((report) => report.type === reportType)
-                       .find(report => report.id === id)
-    
-    if (!report) {
-      return
-    }       
-    
-    const reportIndex = data.reports.findIndex((report) => report.id === reportToUpdate.id)
-
-    data.reports[reportIndex] = {
-      ...data.reports[reportIndex],
-      ...body
-    }
-
-    return data.reports[reportIndex]
+    return this.appService.updateReport(reportType, id, body)
   }
 
   @HttpCode(204)
   @Delete('/:id')
   deleteReports(@Param('id') id:string) {
-
-    const reportIndex = data.reports.findIndex((report) => report.id === id) 
-    
-    if (reportIndex === -1)
-    {
-      return
-    }
-
-    data.reports.splice(reportIndex, 1)
-    return data.reports;
+    return this.appService.deleteReport(id)
   }
 }
