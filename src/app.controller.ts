@@ -4,14 +4,14 @@ import {ReportType, data} from './data';
 import { report } from 'process';
 import { type } from 'os';
 import { v4 as uuid } from 'uuid';
-import { CreateReportDto, UpdateReportDto } from './dtos/report.dto';
+import { CreateReportDto, ReportReponseDto, UpdateReportDto } from './dtos/report.dto';
 
 @Controller('report/:type')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getAllReports(@Param('type', new ParseEnumPipe(ReportType)) type:string) {
+  getAllReports(@Param('type', new ParseEnumPipe(ReportType)) type:string): ReportReponseDto[] {
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
     return this.appService.getAllReports(reportType)
   }
@@ -19,7 +19,7 @@ export class AppController {
   @Get('/:id')
   getReportById(@Param('id', ParseUUIDPipe) id:string,
     @Param('type', new ParseEnumPipe(ReportType)) type:string
-  )
+  ): ReportReponseDto
   {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
@@ -28,7 +28,7 @@ export class AppController {
   }
 
   @Post()
-  postReports(@Body() {amount, source}: CreateReportDto, @Param('type', new ParseEnumPipe(ReportType)) type:string) {
+  postReports(@Body() {amount, source}: CreateReportDto, @Param('type', new ParseEnumPipe(ReportType)) type:string): ReportReponseDto {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
@@ -36,7 +36,7 @@ export class AppController {
   }
 
   @Put('/:id')
-  updateReports(@Param('type', new ParseEnumPipe(ReportType)) type:string, @Param('id', ParseUUIDPipe) id:string , @Body() body: UpdateReportDto) {
+  updateReports(@Param('type', new ParseEnumPipe(ReportType)) type:string, @Param('id', ParseUUIDPipe) id:string , @Body() body: UpdateReportDto): ReportReponseDto {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ReportType, data } from './data';
 import { v4 as uuid } from 'uuid';
+import { CreateReportDto, ReportReponseDto } from './dtos/report.dto';
+import { report } from 'process';
 
 interface Report { amount: number, source: string}
 
@@ -9,18 +11,21 @@ interface UpdateReport { amount?: number, source?: string}
 
 @Injectable()
 export class AppService {
-  getAllReports(type: ReportType){
-    return data.reports.filter(report => report.type === type)
-
+  getAllReports(type: ReportType): ReportReponseDto[]{
+    return data.reports.filter(report => report.type === type).map(report => new ReportReponseDto(report))
   }
 
-  getReportById(type:ReportType , id:string)
+  getReportById(type:ReportType , id:string): ReportReponseDto
   {
-    return data.reports.filter((report) => report.type === type)
+    const reponse = data.reports.filter((report) => report.type === type)
     .find(report => report.id === id)
+
+    if (!reponse) return
+
+    return new ReportReponseDto(reponse)
   }
 
-  createReport(type : ReportType, {amount, source}: Report){
+  createReport(type : ReportType, {amount, source}: Report): ReportReponseDto{
     const newReport = {
       id: uuid(),
       source,
@@ -32,11 +37,11 @@ export class AppService {
 
     data.reports.push(newReport)
 
-    return newReport
+    return new ReportReponseDto(newReport)
   }
 
 
-  updateReport(type: ReportType, id:string , body: UpdateReport) {
+  updateReport(type: ReportType, id:string , body: UpdateReport): ReportReponseDto {
     const reportToUpdate = data.reports.filter((report) => report.type === type)
     .find(report => report.id === id)
 
@@ -52,7 +57,7 @@ export class AppService {
     updated_at: new Date(),
     }
 
-    return data.reports[reportIndex]
+    return new ReportReponseDto(data.reports[reportIndex])
   }
 
   deleteReport(id:string){
@@ -64,6 +69,6 @@ export class AppService {
     }
 
     data.reports.splice(reportIndex, 1)
-    return data.reports; 
+    return  
   }
 }
