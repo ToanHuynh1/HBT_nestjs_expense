@@ -1,23 +1,24 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, ParseUUIDPipe, Post, Put, ParseEnumPipe } from '@nestjs/common';
 import { AppService } from './app.service';
 import {ReportType, data} from './data';
 import { report } from 'process';
 import { type } from 'os';
 import { v4 as uuid } from 'uuid';
+import { CreateReportDto, UpdateReportDto } from './dtos/report.dto';
 
 @Controller('report/:type')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getAllReports(@Param('type') type:string) {
+  getAllReports(@Param('type', new ParseEnumPipe(ReportType)) type:string) {
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
     return this.appService.getAllReports(reportType)
   }
 
   @Get('/:id')
-  getReportById(@Param('id') id:string,
-    @Param('type') type:string
+  getReportById(@Param('id', ParseUUIDPipe) id:string,
+    @Param('type', new ParseEnumPipe(ReportType)) type:string
   )
   {
 
@@ -27,10 +28,7 @@ export class AppController {
   }
 
   @Post()
-  postReports(@Body() {amount, source}: {
-    amount: number,
-    source: string
-  }, @Param('type') type:string) {
+  postReports(@Body() {amount, source}: CreateReportDto, @Param('type', new ParseEnumPipe(ReportType)) type:string) {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
@@ -38,11 +36,7 @@ export class AppController {
   }
 
   @Put('/:id')
-  updateReports(@Param('type') type:string, @Param('id') id:string , @Body() body: 
-  {
-    amount: number,
-    source: string
-  }) {
+  updateReports(@Param('type', new ParseEnumPipe(ReportType)) type:string, @Param('id', ParseUUIDPipe) id:string , @Body() body: UpdateReportDto) {
 
     const reportType = (type === "income") ? ReportType.INCOME: ReportType.EXPENSE
 
@@ -51,7 +45,7 @@ export class AppController {
 
   @HttpCode(204)
   @Delete('/:id')
-  deleteReports(@Param('id') id:string) {
+  deleteReports(@Param('id', ParseUUIDPipe) id:string) {
     return this.appService.deleteReport(id)
   }
 }

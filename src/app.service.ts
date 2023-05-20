@@ -4,6 +4,9 @@ import { v4 as uuid } from 'uuid';
 
 interface Report { amount: number, source: string}
 
+
+interface UpdateReport { amount?: number, source?: string}
+
 @Injectable()
 export class AppService {
   getAllReports(type: ReportType){
@@ -11,7 +14,7 @@ export class AppService {
 
   }
 
-  getReportById(type:string , id:string)
+  getReportById(type:ReportType , id:string)
   {
     return data.reports.filter((report) => report.type === type)
     .find(report => report.id === id)
@@ -29,11 +32,11 @@ export class AppService {
 
     data.reports.push(newReport)
 
-    return {newReport};
+    return newReport
   }
 
 
-  updateReport(type: ReportType, id:string , body: Report) {
+  updateReport(type: ReportType, id:string , body: UpdateReport) {
     const reportToUpdate = data.reports.filter((report) => report.type === type)
     .find(report => report.id === id)
 
