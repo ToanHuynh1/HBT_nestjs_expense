@@ -69,6 +69,6 @@ export class AppService {
     }
 
     data.reports.splice(reportIndex, 1)
-    return  
+    return data.reports; 
   }
 }
